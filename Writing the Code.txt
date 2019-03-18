@@ -1,0 +1,67 @@
+Writing the Code:
+
+
+cd /var/www/html
+
+
+sudo nano index.html
+//this is a default html file. delete everything in nano
+
+<html>
+<head>
+<script>
+function readRGB(color){
+if (color.length == 0) {
+	document.getElementById("txtHint").innerHTML = "";
+	return;
+}
+else {
+	var xmlhttp = new XMLHttpRequest();
+	xmlhttp.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 400) {
+			document.getElementById("txtHint").innerHTML = this.responseText;
+		}
+	};
+	temp = encodeURIComponent(color);
+	xmlhttp.open("GET", "action_page.php?q=" + temp, true);
+	xmlhttp.send();
+	}
+}
+</script>
+</head>
+<body>
+<form action="/action_page.php" method="post">
+	Select A Color:
+	<input type="color" name="favcolor" value="#ff0000" onchange="readRGB(this.value)">
+
+</body>
+</html>
+
+// save it as main.html
+//The code above acts as the button you press, and as the code that sends the color you select to the other file.
+
+
+
+
+<?php
+//get the q parameter from URL
+$q = $_REQUEST["q"];
+
+$hint = "";
+$hex = urldecode($q);
+list($r, $g, $b) = sscanf($hex, "#%02x%02x%02x");
+
+echo "$hex -> $r $g $b";
+exec("pigs p 17 $g");
+exec("pigs p 22 $r");
+exec("pigs p 22 $b");
+?>
+
+//save it as action_page.php
+//This code receives the RGB value, and sets the PWM values on the LED strip.
+
+
+
+
+sudo nano
+

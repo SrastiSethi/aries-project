@@ -1,0 +1,127 @@
+//Upload the code in /home/pi folder
+
+
+import RPi.GPIO as GPIO
+import time
+GPIO.setmode(GPIO.BOARD)
+GPIO.setwarnings(False)
+GPIO.setup(7,GPIO.OUT)
+GPIO.setup(11,GPIO.OUT)
+GPIO.setup(13,GPIO.OUT)
+GPIO.setup(15,GPIO.OUT)
+GPIO.setup(12,GPIO.OUT)
+GPIO.setup(16,GPIO.OUT)
+GPIO.setup(18,GPIO.OUT)
+GPIO.setup(22,GPIO.OUT)
+while True:
+GPIO.output(7,GPIO.HIGH)
+GPIO.output(11,GPIO.LOW)
+GPIO.output(13,GPIO.LOW)
+GPIO.output(15,GPIO.HIGH)
+GPIO.output(12,GPIO.HIGH)
+GPIO.output(16,GPIO.HIGH)
+GPIO.output(18,GPIO.HIGH)
+GPIO.output(22,GPIO.LOW)
+time.sleep(1)
+GPIO.output(7,GPIO.LOW)
+GPIO.output(11,GPIO.HIGH)
+GPIO.output(13,GPIO.HIGH)
+GPIO.output(15,GPIO.LOW)
+GPIO.output(12,GPIO.LOW)
+GPIO.output(16,GPIO.LOW)
+GPIO.output(18,GPIO.LOW)
+GPIO.output(22,GPIO.HIGH)
+time.sleep(1)
+GPIO.output(7,GPIO.HIGH)
+GPIO.output(11,GPIO.LOW)
+GPIO.output(13,GPIO.LOW)
+GPIO.output(15,GPIO.LOW)
+GPIO.output(12,GPIO.HIGH)
+GPIO.output(16,GPIO.LOW)
+GPIO.output(18,GPIO.HIGH)
+GPIO.output(22,GPIO.LOW)
+time.sleep(1)
+GPIO.output(7,GPIO.HIGH)
+GPIO.output(11,GPIO.HIGH)
+GPIO.output(13,GPIO.HIGH)
+GPIO.output(15,GPIO.HIGH)
+GPIO.output(12,GPIO.HIGH)
+GPIO.output(16,GPIO.HIGH)
+GPIO.output(18,GPIO.HIGH)
+GPIO.output(22,GPIO.HIGH)
+time.sleep(5)
+
+
+
+//python code that runs the lights in default pattern at boot
+
+
+//To install Blynk on Pi, install wiringPi
+git clone git://git.drogon.net/wiringPi
+
+cd wiringPi
+./build
+
+//To compile the Blynk library
+
+git clone https://github.com/blynkkk/blynk-library.git
+cd blynk-library/linux
+make clean all target=raspberry
+
+// Edit the file by replacing the token with the token generated from the project you created in your Blynk app as below. Upload it to /home/pi folder.
+
+/home/pi//Blynk/Blynk/linux/./blynk --token=<Your token here>
+
+sudo nano /etc/rc.local
+/home/pi/autostartblynk.sh //add this before exit 0 line
+
+cd /home/pi                 //press enter
+chmod +x autostartblynk.sh // press enter
+
+//Upload your mp3s and the playlist file here to /home/pi/lightshowpi/music folder
+
+
+//Upload this code musicloop.py in /home/pi folder. This will play the songs from the playlist.
+import time
+import os
+while True:
+os.system("sudo python /home/pi/lightshowpi/py/synchronized_lights.py --playlist=/home/pi/lightshowpi/music/.playlist")
+time.sleep(1)
+
+//Upload this in /home/pi folder. Start/stop the default/music mode and also to shutdown and restart the pi via Blynk app
+
+import RPi.GPIO as GPIO
+import time 
+import os
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(7, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
+GPIO.setup(8, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
+GPIO.setup(9, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
+GPIO.setup(10, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
+GPIO.setup(11, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
+GPIO.setup(15, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
+def DefaultSequence(channel):
+os.system("sudo python DefaultSequence.py")
+def StopDefaultSequence(channel):
+os.system("""sudo ps aux | grep "python All_Lights.py" | grep -v grep | awk '{print $2}' | xargs sudo kill -9""")
+def MusicON(channel):
+os.system("sudo python musicloop.py")
+def MusicOFF(channel):
+os.system("""sudo ps aux | grep "python /home/pi/lightshowpi/py/synchronized_lights.py" | grep -v grep | awk '{print $2}' | xargs sudo kill -9 && sudo ps aux | grep "python musicloop.py" | grep -v grep | awk '{print $2}' | xargs sudo kill -9 """)
+def Reboot(channel):
+os.system("sudo reboot")
+def Shutdown(channel):
+os.system("sudo shutdown now")
+GPIO.add_event_detect(7, GPIO.FALLING, callback = MusicOFF, bouncetime = 2000) GPIO.add_event_detect(8, GPIO.FALLING, callback = Shutdown, bouncetime = 2000) GPIO.add_event_detect(9, GPIO.FALLING, callback = Reboot, bouncetime = 2000)
+GPIO.add_event_detect(10, GPIO.FALLING, callback = DefaultSequence, bouncetime = 2000) GPIO.add_event_detect(11, GPIO.FALLING, callback = MusicON, bouncetime = 2000) GPIO.add_event_detect(15, GPIO.FALLING, callback = StopDefaultSequence, bouncetime = 2000)
+while 1:
+time.sleep(1)
+os.system("sudo python /home/pi/lightshowpi/py/synchronized_lights.py --playlist=/home/pi/lightshowpi/music/.playlist")
+
+/home/pi/.config/autostart 
+
+//Upload the following files to this folder and reboot Pi.
+
+Blynk.desktop
+Blynk_LightshowPi.desktop
+DefaultSequence.desktop
